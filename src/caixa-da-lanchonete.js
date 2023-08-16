@@ -30,7 +30,7 @@ class CaixaDaLanchonete {
                                 output = "Item inválido!"
                             }
                             
-                            try{//tenta executa o código, se não conseguir joga o erro para o catch mais próximo
+                            try{//try - tenta executa o código, se não conseguir joga o erro para o catch mais próximo
                                 if(pedido[1] != 0){
                                     for (let j = 0 ; j < pedido[1]; j++){ //procurar a string pedido[0] na classe tabela
                                         let item = new Item(tabela.codigo[index], tabela.preco[index], tabela.descricao[index]); // criando o objeto
@@ -40,11 +40,11 @@ class CaixaDaLanchonete {
                                 }
                                 
                                 else{
-                                    throw new Error("Quantidade inválida!"); //lança o erro, procura o catch mais perto e capta a mensagem de erro  
+                                    throw new Error("Quantidade inválida!"); //throw new Error - lança o erro, procura o catch mais perto e capta a mensagem de erro  
                                 }
                             }
                             catch(e){
-                                output = "Quantidade inválida!"; //encerra o programa
+                                output = "Quantidade inválida!"; //catch - encerra o programa
                             }
                 
                         }
@@ -71,14 +71,17 @@ class CaixaDaLanchonete {
                             }
                             else if(metodoDePagamento == 'debito'){
                                 valorDaCompra = valor;
+                            }                            
+                            else{
+                                 throw new Error ('Forma de pagamento inválida!');
                             }
-                            else{ 
-                                throw new Error ('Forma de pagamento inválida!');
+
+                            if(valorDaCompra != 0){ 
+                                valorDaCompra = valorDaCompra.toFixed(2);
+                                output = 'R$ ' + valorDaCompra;
+                                output = output.replace(".",",");    
                             }
-        
-                            valorDaCompra = valorDaCompra.toFixed(2);
-                            output = 'R$ ' + valorDaCompra;
-                            output = output.replace(".",",")
+ 
                         }
                         catch(e){
                             output = 'Forma de pagamento inválida!';
@@ -105,4 +108,6 @@ class CaixaDaLanchonete {
     }
 
 }
+let caixa = new CaixaDaLanchonete()
+console.log(caixa.calcularValorDaCompra('dinheiro', 'salgado,0'));
 export { CaixaDaLanchonete };

@@ -21,7 +21,7 @@ class ListaDeCompras {
         for(let j = 0; j < this.compras.length; j++) {
 
             if(chantily && this.compras[j].codigo == 'cafe' || !chantily && this.compras[j].codigo == 'cafe') {
-                status = 'Sucesso';
+                status = 'Sucesso!';
             }
         }
 
@@ -36,7 +36,7 @@ class ListaDeCompras {
         for(let j = 0; j < this.compras.length; j++) {
 
             if(queijo && this.compras[j].codigo == 'sanduiche' || !queijo && this.compras[j].codigo == 'sanduiche') {
-                status = 'Sucesso';
+                status = 'Sucesso!';
             }
         }
 
