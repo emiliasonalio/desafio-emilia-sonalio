@@ -1,113 +1,124 @@
-import { Item } from "./Item.js";
+import { Item } from "./item.js";
 import { Tabela } from "./tabela.js";
-import { ListaDeCompras } from "./lista-de-compras.js";
+import { CarrinhoDeCompras } from "./carrinho-de-compras.js";
 
 class CaixaDaLanchonete {
 
     calcularValorDaCompra(metodoDePagamento, itens) {
+        let tabela = new Tabela();
+        let carrinho = new CarrinhoDeCompras();
+
+        let total = 0;
+        let status = false;
+
         let valorDaCompra = 0;
         let output = '';
+
         try{
-            if(itens != ''){
-                try{
-                    if(metodoDePagamento != ''){
-                        let valor = 0;
-                        let tabela = new Tabela(); //instanciei o objeto tabela usando a classe Tabela
-                        let lista = new ListaDeCompras();
-                        let status;
-                
-                        for (let i = 0 ; i < itens.length; i++){
-                
-                            let pedido = itens[i].split(','); //dividindo a string na vírgula
-                            let index;
-                            try{
-                                index = tabela.acharCorrespondente(pedido[0]); // procurando a posição do pedido
-                                if(index == -1){
-                                    throw new Error ("Item inválido!");
-                                }
-                            }
-                            catch(e){
-                                output = "Item inválido!"
-                            }
-                            
-                            try{//try - tenta executa o código, se não conseguir joga o erro para o catch mais próximo
-                                if(pedido[1] != 0){
-                                    for (let j = 0 ; j < pedido[1]; j++){ //procurar a string pedido[0] na classe tabela
-                                        let item = new Item(tabela.codigo[index], tabela.preco[index], tabela.descricao[index]); // criando o objeto
-                                        lista.compras.push(item);
-                                    }
-                    
-                                }
-                                
-                                else{
-                                    throw new Error("Quantidade inválida!"); //throw new Error - lança o erro, procura o catch mais perto e capta a mensagem de erro  
-                                }
-                            }
-                            catch(e){
-                                output = "Quantidade inválida!"; //catch - encerra o programa
-                            }
-                
-                        }
-                        try{
-                            status = lista.verificarLista();
-                            if (status != 'Sucesso!'){
-                                throw new Error (status);
-                            }
-                        }   
-                        catch(e){
-                            output = 'Item extra não pode ser pedido';
-                        }
 
-                        lista.compras.forEach(item => {
-                            valor += item.preco;
-                        });
-                        
-                        try{
-                            if(metodoDePagamento == 'dinheiro'){
-                                valorDaCompra = valor * 0.95;
-                            }
-                            else if(metodoDePagamento == 'credito'){
-                                valorDaCompra = valor * 1.03;
-                            }
-                            else if(metodoDePagamento == 'debito'){
-                                valorDaCompra = valor;
-                            }                            
-                            else{
-                                 throw new Error ('Forma de pagamento inválida!');
-                            }
+            // Tratamento de erro para parâmetros vazios
+            try{
+                if(itens == ''){
+                    throw new Error ('Não há itens no carrinho de compra!');
+                }
+                if(metodoDePagamento == ''){
+                    throw new Error ('Forma de pagamento inválida!');
+                }
+            }
+            catch(error){
+                throw error;
+            }
 
-                            if(valorDaCompra != 0){ 
-                                valorDaCompra = valorDaCompra.toFixed(2);
-                                output = 'R$ ' + valorDaCompra;
-                                output = output.replace(".",",");    
-                            }
- 
-                        }
-                        catch(e){
-                            output = 'Forma de pagamento inválida!';
-                        }            
+            // Tratamento de dados & colocar itens no carrinho de compras
+            try{
+                for (let i = 0 ; i < itens.length; i++){
+                    let itemInfo = itens[i].split(',');
+
+                    if(itemInfo[0] == '') {
+                        throw new Error('Item inválido!');
                     }
-                    else{
-                        throw new Error ('Forma de pagamento inválida!');
+                    if(itemInfo[1] == 0 || itemInfo[1] == '') {
+                        throw new Error('Quantidade inválida!');
+                    }
+
+                    let index = tabela.encontrarIndex(itemInfo[0]);
+
+                    if(index == -1) {
+                        throw new Error('Item inválido!');
+                    }
+
+                    if(itemInfo[1] != 0 || itemInfo != ''){
+                        for (let j = 0 ; j < itemInfo[1]; j++){
+                            let item = new Item(tabela.codigo[index], tabela.preco[index], tabela.descricao[index]);
+                            carrinho.compras.push(item);
+                        }
                     }
                 }
-                catch(e){
-                    output = 'Forma de pagamento inválida!';
+            }
+            catch(error) {
+                throw error;
+            }
+
+
+            // Verificação de itens extra no carrinho
+            try{
+                status = carrinho.verificarStatus();
+                if (status == false){
+                    throw new Error ('Item extra não pode ser pedido sem o principal');
                 }
-            }  
-            else{
-                throw new Error ('Não há itens no carrinho de compra!');
+            }
+            catch(error) {
+                throw error;
+            }
+
+
+            // Calculando total da compra & realizando pagamento
+            try {
+                carrinho.compras.forEach(item => {
+                    total += item.preco;
+                });
+        
+                if(metodoDePagamento == 'dinheiro'){
+                    valorDaCompra = total * 0.95;
+                }
+                else if(metodoDePagamento == 'credito'){
+                    valorDaCompra = total * 1.03;
+                }
+                else if(metodoDePagamento == 'debito'){
+                    valorDaCompra = total;
+                }                            
+                else{
+                    throw new Error ('Forma de pagamento inválida!');
+                }
+            }
+            catch(error) {
+                throw error;
+            }
+            
+
+            // Tratamento de dados - formatando output
+            try {
+                if(valorDaCompra != 0){ 
+                    valorDaCompra = valorDaCompra.toFixed(2);
+                    output = 'R$ ' + valorDaCompra;
+                    output = output.replace(".",",");    
+                }
+            }
+            catch(error) {
+                throw error;
             }
         }
-        catch(e){
-            output = 'Não há itens no carrinho de compra!';
+        catch(error) {
+            output = error.message;
         }
-        
-        
+
+
         return output;
     }
 
 }
-let caixa = new CaixaDaLanchonete()
-console.log(caixa.calcularValorDaCompra('dinheiro', 'salgado,0'));
+
+
+//let caixa = new CaixaDaLanchonete()
+//console.log(caixa.calcularValorDaCompra('dinheiro', 'salgado,0'));
 export { CaixaDaLanchonete };
